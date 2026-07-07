@@ -1,40 +1,30 @@
 services:
   - type: web
     runtime: node
-    name: groweasy-csv-importer-api
+    name: groweasy-csv-importer
     plan: free
-    rootDir: backend
-    buildCommand: npm install && npm run build
-    startCommand: npm run start
-    healthCheckPath: /api/health
+    buildCommand: >-
+      npm install --prefix backend &&
+      npm run build --prefix backend &&
+      npm install --prefix frontend &&
+      npm run build --prefix frontend
+    startCommand: bash start.sh
+    healthCheckPath: /
     envVars:
       - key: NODE_ENV
         value: production
+      # Public port Render assigns to this service; the frontend binds here.
       - key: PORT
         value: 10000
-      - key: OPENAI_MODEL
-        value: gpt-4o-mini
+      # Internal-only port used for the backend <-> frontend proxy.
+      - key: BACKEND_INTERNAL_PORT
+        value: 4000
+      # Groq (OpenAI-compatible) settings for the backend AI extractor.
+      - key: GROQ_MODEL
+        value: llama-3.3-70b-versatile
       - key: AI_BATCH_SIZE
         value: 8
       - key: AI_BATCH_RETRIES
         value: 1
-      - key: OPENAI_API_KEY
+      - key: GROQ_API_KEY
         sync: false
-
-  - type: web
-    runtime: node
-    name: groweasy-csv-importer-web
-    plan: free
-    rootDir: frontend
-    buildCommand: npm install && npm run build
-    startCommand: npm run start
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: BACKEND_HOST
-        fromService:
-          type: web
-          name: groweasy-csv-importer-api
-          property: host
-      - key: BACKEND_PORT
-        value: 10000

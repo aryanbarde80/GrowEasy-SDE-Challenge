@@ -35,7 +35,7 @@ app.use(express.json({ limit: "1mb" }));
 app.get("/api/health", (_request, response) => {
   response.json({
     status: "ok",
-    provider: process.env.OPENAI_API_KEY ? "openai" : "heuristic",
+    provider: process.env.GROQ_API_KEY ? "groq" : "heuristic",
     timestamp: new Date().toISOString(),
   });
 });

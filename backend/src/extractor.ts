@@ -54,11 +54,13 @@ const HEADER_ALIASES: Array<[keyof CrmRecord, string[]]> = [
 ];
 
 export interface ExtractionMeta {
-  provider: "openai" | "heuristic";
+  provider: "groq" | "heuristic";
   usedFallback: boolean;
   batchSize: number;
   failedBatchRetries: number;
 }
+
+const GROQ_BASE_URL = process.env.GROQ_BASE_URL ?? "https://api.groq.com/openai/v1";
 
 export async function extractCrmRecords(rows: CsvRow[]): Promise<{
   results: ExtractionResult[];
@@ -69,7 +71,7 @@ export async function extractCrmRecords(rows: CsvRow[]): Promise<{
     row,
   }));
 
-  if (!process.env.OPENAI_API_KEY) {
+  if (!process.env.GROQ_API_KEY) {
     return {
       results: envelopes.map((envelope) => extractWithHeuristics(envelope)),
       meta: {
@@ -81,7 +83,10 @@ export async function extractCrmRecords(rows: CsvRow[]): Promise<{
     };
   }
 
-  const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const client = new OpenAI({
+    apiKey: process.env.GROQ_API_KEY,
+    baseURL: GROQ_BASE_URL,
+  });
   const results: ExtractionResult[] = [];
   let failedBatchRetries = 0;
   let usedFallback = false;
@@ -104,7 +109,7 @@ export async function extractCrmRecords(rows: CsvRow[]): Promise<{
   return {
     results,
     meta: {
-      provider: "openai",
+      provider: "groq",
       usedFallback,
       batchSize: BATCH_SIZE,
       failedBatchRetries,
@@ -124,7 +129,7 @@ async function tryExtractBatchWithAi(
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt += 1) {
     try {
       const completion = await client.chat.completions.create({
-        model: process.env.OPENAI_MODEL ?? "gpt-4o-mini",
+        model: process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile",
         temperature: 0.1,
         response_format: { type: "json_object" },
         messages: [

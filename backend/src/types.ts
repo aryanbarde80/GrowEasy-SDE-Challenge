@@ -69,7 +69,7 @@ export interface ImportResponse {
     reason: string;
   }>;
   processing: {
-    provider: "openai" | "heuristic";
+    provider: "groq" | "heuristic";
     usedFallback: boolean;
     batchSize: number;
     failedBatchRetries: number;
