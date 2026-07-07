@@ -1,0 +1,40 @@
+services:
+  - type: web
+    runtime: node
+    name: groweasy-csv-importer-api
+    plan: free
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: AI_BATCH_SIZE
+        value: 8
+      - key: AI_BATCH_RETRIES
+        value: 1
+      - key: OPENAI_API_KEY
+        sync: false
+
+  - type: web
+    runtime: node
+    name: groweasy-csv-importer-web
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: BACKEND_HOST
+        fromService:
+          type: web
+          name: groweasy-csv-importer-api
+          property: host
+      - key: BACKEND_PORT
+        value: 10000
