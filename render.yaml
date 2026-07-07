@@ -13,18 +13,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      # Public port Render assigns to this service; the frontend binds here.
-      - key: PORT
-        value: 10000
-      # Internal-only port used for the backend <-> frontend proxy.
-      - key: BACKEND_INTERNAL_PORT
-        value: 4000
-      # Groq (OpenAI-compatible) settings for the backend AI extractor.
-      - key: GROQ_MODEL
-        value: llama-3.3-70b-versatile
-      - key: AI_BATCH_SIZE
-        value: 8
-      - key: AI_BATCH_RETRIES
-        value: 1
+      # The only variable you actually need to set — Render will prompt
+      # for it. Everything else (model, ports, batch size) has a working
+      # default baked into the code; override here only if you need to.
       - key: GROQ_API_KEY
         sync: false
